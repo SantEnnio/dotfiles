@@ -1,0 +1,13 @@
+# roba per-macchina o segreta: non deve mai finire nel repo
+*.local
+*.bak.*
+.DS_Store
+.env
+.env.*
+**/credentials
+**/*token*
+**/*secret*
+id_rsa
+id_ed25519
+*.pem
+*.key

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# clone-repo: scegli interattivamente (fzf) una repo GitHub accessibile
+# dall'account loggato in gh e clonala nella cartella corrente.
+# Uso: clone-repo [filtro-iniziale]
+set -euo pipefail
+
+for cmd in gh fzf git; do
+  command -v "$cmd" >/dev/null || { echo "manca '$cmd' (brew install $cmd)" >&2; exit 1; }
+done
+
+echo "Carico le repo accessibili..." >&2
+# affiliation=owner,collaborator,organization_member => tutte le repo che l'account può vedere
+repos=$(gh api 'user/repos?per_page=100&affiliation=owner,collaborator,organization_member&sort=pushed' \
+  --paginate --jq '.[] | "\(.full_name)\t\(if .private then "🔒" else "  " end)\t\(.description // "")"')
+
+[ -n "$repos" ] || { echo "nessuna repo trovata" >&2; exit 1; }
+
+selected=$(printf '%s\n' "$repos" | fzf \
+  --query="${1:-}" \
+  --delimiter=$'\t' \
+  --with-nth=1,2,3 \
+  --tabstop=4 \
+  --height=80% --layout=reverse --border \
+  --prompt='repo> ' \
+  --header='Enter: clona nella cartella corrente · Esc: annulla' \
+  --preview='gh repo view {1} 2>/dev/null | head -60' \
+  --preview-window=right:50%:wrap) || exit 0
+
+full_name=$(printf '%s' "$selected" | cut -f1)
+name=${full_name##*/}
+
+if [ -e "$name" ]; then
+  echo "la cartella '$name' esiste già" >&2
+  exit 1
+fi
+
+echo "Clono $full_name in ./$name" >&2
+gh repo clone "$full_name" "$name"
