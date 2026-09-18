@@ -31,3 +31,8 @@ Dipendenze: `gh`, `fzf`, `git` — su macOS `brew install gh fzf`, poi `gh auth 
 Nel repo va solo ciò che è uguale su ogni macchina. Token, chiavi, host interni e impostazioni
 specifiche di una macchina restano fuori: mettili in file `*.local` (esclusi da `.gitignore`),
 per esempio un `~/.zshrc.local` letto in fondo al tuo `~/.zshrc`.
+
+## Per gli agenti
+
+Le regole per agenti che lavorano su questo repo — soprattutto su come non committare
+segreti, dato che il repo è pubblico — sono in [`AGENTS.md`](AGENTS.md).
